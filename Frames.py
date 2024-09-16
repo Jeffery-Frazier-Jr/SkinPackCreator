@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 
 class FileSelect(ctk.CTkFrame):
     def __init__(self, parent):
-        super().__init__(parent, fg_color = '#2c2c2c')
+        super().__init__(parent, fg_color = '#222222')
         
         # grid
         self.rowconfigure((0,1,2,3,4), weight = 1)
