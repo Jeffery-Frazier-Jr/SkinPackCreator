@@ -16,9 +16,10 @@ class App(ctk.CTk):
 
         # settings layout
         # file_selection = Frame(settings_control, 0, 0, 1, .5, 'white')       # panels
-        FileSelect(settings_control).place(relx = 0, rely = 0, relwidth = 1, relheight = .5)
+        FileSelect(settings_control)
+        
         # export_controls = Frame(settings_control, 0, .5, 1, .5, 'pink')
-        ExportControls(settings_control).place(relx = 0, rely = .5, relwidth = 1, relheight = .5)
+        ExportControls(settings_control)
         
         # export_controls.rowconfigure((0,1,2), weight = 1, uniform = 'b')
         # export_controls.columnconfigure((0,1), weight = 1, uniform = 'b')
@@ -31,7 +32,7 @@ class App(ctk.CTk):
         # DropMenu(file_selection, 2, 1, ['More', 'or', 'less', 'know'])
 
         # File view & Folder select frame
-        FileOutput(folder_output).place(relx = 0, rely = 0, relwidth = 1, relheight = 1)
+        FileOutput(folder_output)
         # folder_output.rowconfigure((0,1), weight = 1, uniform = 'a')         # grid
         # folder_output.columnconfigure((0,1), weight = 1, uniform = 'a')
         # 
