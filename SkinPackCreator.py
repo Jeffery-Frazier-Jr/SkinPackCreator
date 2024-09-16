@@ -8,6 +8,7 @@ class App(ctk.CTk):
         self.geometry('1500x800')
         self.minsize(750,400)
         self.title('SkinPackCreator')
+        ctk.set_appearance_mode('dark')
 
         # main layout
         settings_control = Frame(self, 0, 0, .4, 1)
@@ -30,13 +31,14 @@ class App(ctk.CTk):
         # DropMenu(file_selection, 2, 1, ['More', 'or', 'less', 'know'])
 
         # File view & Folder select frame
-        folder_output.rowconfigure((0,1), weight = 1, uniform = 'a')         # grid
-        folder_output.columnconfigure((0,1), weight = 1, uniform = 'a')
-        
-        Label(folder_output, 'Current\nSkin', 0, 0, 'white', 'black')        # widgets
-        Label(folder_output, 'Skin\nFolder\nSelect', 0, 1, 'red', 'black')
-        Label(folder_output, 'Current\nCape', 1, 0, 'yellow', 'black')
-        Label(folder_output, 'Cape\nFolder\nSelect', 1, 1, 'blue', 'black')
+        FileOutput(folder_output).place(relx = 0, rely = 0, relwidth = 1, relheight = 1)
+        # folder_output.rowconfigure((0,1), weight = 1, uniform = 'a')         # grid
+        # folder_output.columnconfigure((0,1), weight = 1, uniform = 'a')
+        # 
+        # Label(folder_output, 0, 0, 'Current\nSkin', '#292929', 'white')        # widgets
+        # Button(folder_output, 0, 1, 'Skin\nFolder\nSelect', True)
+        # Label(folder_output, 1, 0, 'Current\nCape', '#292929', 'white')
+        # Button(folder_output, 1, 1, 'Cape\nFolder\nSelect', True)
 
         # run
         self.mainloop()
