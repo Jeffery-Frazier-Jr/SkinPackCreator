@@ -10,16 +10,17 @@ class App(ctk.CTk):
         self.title('SkinPackCreator')
         ctk.set_appearance_mode('dark')
 
+        Layout(self)
         # main layout
-        settings_control = Frame(self, 0, 0, .4, 1)
-        folder_output = Frame(self, .4, 0, .6, 1)
+        # settings_control = Frame(self, 0, 0, .4, 1)
+        # folder_output = Frame(self, .4, 0, .6, 1)
 
         # settings layout
         # file_selection = Frame(settings_control, 0, 0, 1, .5, 'white')       # panels
-        FileSelect(settings_control)
+        # FileSelect(settings_control)
         
         # export_controls = Frame(settings_control, 0, .5, 1, .5, 'pink')
-        ExportControls(settings_control)
+        # ExportControls(settings_control)
         
         # export_controls.rowconfigure((0,1,2), weight = 1, uniform = 'b')
         # export_controls.columnconfigure((0,1), weight = 1, uniform = 'b')
@@ -32,7 +33,7 @@ class App(ctk.CTk):
         # DropMenu(file_selection, 2, 1, ['More', 'or', 'less', 'know'])
 
         # File view & Folder select frame
-        FileOutput(folder_output)
+        # FileOutput(folder_output)
         # folder_output.rowconfigure((0,1), weight = 1, uniform = 'a')         # grid
         # folder_output.columnconfigure((0,1), weight = 1, uniform = 'a')
         # 
