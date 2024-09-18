@@ -31,9 +31,9 @@ class Layout(ctk.CTkFrame):
         self.Localization_ent = ctk.CTkEntry(FileSelectFrame)
         self.Default_all_btn = ctk.CTkButton(FileSelectFrame, text = 'DEF all')
         self.Skin_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Skin')
-        self.Skin_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.skinupdateview())
+        self.Skin_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.skinupdateview() if self.Skin_select_menu.get() != 'Select File' else print('Please select a folder with your skin file(s)'))
         self.Cape_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Cape')
-        self.Cape_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'])
+        self.Cape_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.capeupdateview() if self.Cape_select_menu.get() != 'Select File' else print('Please select a folder with your cape file(s)'))
 
         # placement
         self.Pack_exportLabel.grid(row = 0, column = 1, sticky = 'w', padx = 10)
@@ -90,47 +90,75 @@ class Layout(ctk.CTkFrame):
     def SkinFileSelect(self):
         self.SkinPATH = filedialog.askdirectory()
         self.SkinRecord = [x for x in os.listdir(self.SkinPATH)]
-        self.Skins = [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.SkinPATH)]
-        self.Skin_select_menu.configure(values = self.Skins)
+        if self.SkinRecord:
+            self.Skins = [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.SkinPATH)]
+            self.Skin_select_menu.configure(values = self.Skins)
+        else:
+            print('The file you selected is empty')
 
     def CapeFileSelect(self):
         self.CapePATH = filedialog.askdirectory()
         self.CapeRecord = [x for x in os.listdir(self.CapePATH)]
-        self.Capes = ['None'] + [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.CapePATH)]
-        self.Skin_select_menu.configure(values = self.Capes)
+        if self.CapeRecord:
+            self.Capes = [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.CapePATH)]
+            self.Cape_select_menu.configure(values = self.Capes)
+        else:
+            print('The file you selected is empty')
 
     def skinupdateview(self, *args):
-        self.SkinImage = Image.open(self.SkinPATH + '/' + self.SkinRecord[self.Skins.index(self.Skin_select_menu.get())])
-        self.SkinImageRatio = self.SkinImage.size[0] / self.SkinImage.size[1]
-        self.SkinImageTk = ImageTk.PhotoImage(self.SkinImage)
-        self.Current_Skin.grid_forget()
-        self.Current_Skin = Canvas(self.FileOutputFrame, bd = 0, highlightthickness = 0, relief = 'ridge')
-        self.Current_Skin.grid(row = 0, column = 0, sticky = 'news', padx = 10, pady = 10)
-        self.Current_Skin.create_image(1, 1, anchor = 'nw', image = self.SkinImageTk)
-        self.Current_Skin.bind('<Configure>', self.no_sliceskin)
-
-    def capeupdateview(self, skin):
-        self.CapeImage = Image.open(self.CapePATH + '\\' + skin)
-        self.CapeImageTk = ImageTk.PhotoImage(self.CapeImage)
-        self.Current_Cape.grid_forget()
-        self.Current_Cape = Canvas(self.FileOutputFrame, bd = 0, highlightthickness = 0, relief = 'ridge')
-        self.Current_Cape.grid(row = 0, column = 0, sticky = 'news', padx = 10, pady = 10)
+        try:
+            self.SkinImage = Image.open(self.SkinPATH + '/' + self.SkinRecord[self.Skins.index(self.Skin_select_menu.get())])
+            self.SkinImageRatio = self.SkinImage.size[0] / self.SkinImage.size[1]
+            self.SkinImageTk = ImageTk.PhotoImage(self.SkinImage)
+            self.Current_Skin.grid_forget()
+            self.Current_Skin = Canvas(self.FileOutputFrame, bd = 0, highlightthickness = 0, relief = 'ridge')
+            self.Current_Skin.grid(row = 0, column = 0, sticky = 'news', padx = 10, pady = 10)
+            self.Current_Skin.create_image(1, 1, anchor = 'nw', image = self.SkinImageTk)
+            self.Current_Skin.bind('<Configure>', self.no_sliceskin)
+        except:
+            print('This file is not an image/minecraft-skin')
+            
+    def capeupdateview(self, *args):
+        try:
+            self.CapeImage = Image.open(self.CapePATH + '/' + self.CapeRecord[self.Capes.index(self.Cape_select_menu.get())])
+            self.CapeImageRatio = self.CapeImage.size[0] / self.CapeImage.size[1]
+            self.CapeImageTk = ImageTk.PhotoImage(self.CapeImage)
+            self.Current_Cape.grid_forget()
+            self.Current_Cape = Canvas(self.FileOutputFrame, bd = 0, highlightthickness = 0, relief = 'ridge')
+            self.Current_Cape.grid(row = 1, column = 0, sticky = 'news', padx = 10, pady = 10)
+            self.Current_Cape.create_image(1, 1, anchor = 'nw', image = self.CapeImageTk)
+            self.Current_Cape.bind('<Configure>', self.no_slicecape)
+        except:
+            print('This file is not an image/minecraft-cape')
         
     def no_sliceskin(self, event):
+        global skinresized_tk
         canvas_ratio = event.width / event.height
 
         if canvas_ratio > self.SkinImageRatio:
-            self.skinwidth = int(event.width)
-            self.skinheight = int(self.skinwidth / self.SkinImageRatio)
-        else:
             self.skinheight = int(event.height)
             self.skinwidth = int(self.skinheight * self.SkinImageRatio)
+        else:
+            self.skinwidth = int(event.width)
+            self.skinheight = int(self.skinwidth / self.SkinImageRatio)
         
-        self.placeskin()
-
-    def placeskin(self):
-        # self.Current_Skin.delete('all')
+        self.Current_Skin.delete('all')
         resized_image = self.SkinImage.resize((self.skinwidth, self.skinheight))
-        resized_tk = ImageTk.PhotoImage(resized_image)
-        self.Current_Skin.create_image(0, 0, anchor = 'nw', image = resized_tk)
-        #resized_image
+        skinresized_tk = ImageTk.PhotoImage(resized_image)
+        self.Current_Skin.create_image(int(event.width / 2), int(event.height / 2), anchor = 'center', image = skinresized_tk)
+    
+    def no_slicecape(self, event):
+        global caperesized_tk
+        canvas_ratio = event.width / event.height
+
+        if canvas_ratio > self.CapeImageRatio:
+            self.capeheight = int(event.height)
+            self.capewidth = int(self.capeheight * self.CapeImageRatio)
+        else:
+            self.capewidth = int(event.width)
+            self.capeheight = int(self.capewidth / self.CapeImageRatio)
+        
+        self.Current_Cape.delete('all')
+        resized_image = self.CapeImage.resize((self.capewidth, self.capeheight))
+        caperesized_tk = ImageTk.PhotoImage(resized_image)
+        self.Current_Cape.create_image(int(event.width / 2), int(event.height / 2), anchor = 'center', image = caperesized_tk)
