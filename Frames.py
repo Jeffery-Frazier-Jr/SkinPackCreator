@@ -33,7 +33,7 @@ class Layout(ctk.CTkFrame):
         self.Skin_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Skin')
         self.Skin_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.skinupdateview() if self.Skin_select_menu.get() != 'Select File' else print('Please select a folder with your skin file(s)'))
         self.Cape_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Cape')
-        self.Cape_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.capeupdateview() if self.Cape_select_menu.get() != 'Select File' else print('Please select a folder with your cape file(s)'))
+        self.Cape_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File', 'None'], command = lambda event: self.capeupdateview() if self.Cape_select_menu.get() != 'Select File' else print('Please select a folder with your cape file(s)'))
 
         # placement
         self.Pack_exportLabel.grid(row = 0, column = 1, sticky = 'w', padx = 10)
@@ -94,16 +94,22 @@ class Layout(ctk.CTkFrame):
             self.Skins = [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.SkinPATH)]
             self.Skin_select_menu.configure(values = self.Skins)
         else:
+            self.Skin_select_menu.configure(values = ['Select File'])
             print('The file you selected is empty')
 
     def CapeFileSelect(self):
-        self.CapePATH = filedialog.askdirectory()
-        self.CapeRecord = [x for x in os.listdir(self.CapePATH)]
-        if self.CapeRecord:
-            self.Capes = [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.CapePATH)]
-            self.Cape_select_menu.configure(values = self.Capes)
-        else:
-            print('The file you selected is empty')
+        try:
+            self.CapePATH = filedialog.askdirectory()
+            self.CapeRecord = [x for x in os.listdir(self.CapePATH)]
+            if self.CapeRecord:
+                self.Capes = ['None'] + [x if len(x)<13 else x[:10] + '...' for x in os.listdir(self.CapePATH)]
+                self.Cape_select_menu.configure(values = self.Capes)
+            else:
+                self.Cape_select_menu.configure(values = ['Select File', 'None'])
+                print('The file you selected is empty')
+        except:
+            self.Cape_select_menu.configure(values = ['Select File', 'None'])
+            print(self.CapePATH if self.CapePATH else '[NONE SELECTED]' + ' is not a directory')
 
     def skinupdateview(self, *args):
         try:
@@ -119,17 +125,23 @@ class Layout(ctk.CTkFrame):
             print('This file is not an image/minecraft-skin')
             
     def capeupdateview(self, *args):
-        try:
-            self.CapeImage = Image.open(self.CapePATH + '/' + self.CapeRecord[self.Capes.index(self.Cape_select_menu.get())])
-            self.CapeImageRatio = self.CapeImage.size[0] / self.CapeImage.size[1]
-            self.CapeImageTk = ImageTk.PhotoImage(self.CapeImage)
+        if self.Cape_select_menu.get() == 'None':
+            self.Current_Cape.unbind('<Configure>', None)
             self.Current_Cape.grid_forget()
-            self.Current_Cape = Canvas(self.FileOutputFrame, bd = 0, highlightthickness = 0, relief = 'ridge')
+            self.Current_Cape = ctk.CTkLabel(self.FileOutputFrame, text = 'Selected\nNo Cape', fg_color = '#292929', text_color = 'white')
             self.Current_Cape.grid(row = 1, column = 0, sticky = 'news', padx = 10, pady = 10)
-            self.Current_Cape.create_image(1, 1, anchor = 'nw', image = self.CapeImageTk)
-            self.Current_Cape.bind('<Configure>', self.no_slicecape)
-        except:
-            print('This file is not an image/minecraft-cape')
+        else:
+            try:
+                self.CapeImage = Image.open(self.CapePATH + '/' + self.CapeRecord[self.Capes.index(self.Cape_select_menu.get()) - 1])
+                self.CapeImageRatio = self.CapeImage.size[0] / self.CapeImage.size[1]
+                self.CapeImageTk = ImageTk.PhotoImage(self.CapeImage)
+                self.Current_Cape.grid_forget()
+                self.Current_Cape = Canvas(self.FileOutputFrame, bd = 0, highlightthickness = 0, relief = 'ridge')
+                self.Current_Cape.grid(row = 1, column = 0, sticky = 'news', padx = 10, pady = 10)
+                self.Current_Cape.create_image(1, 1, anchor = 'nw', image = self.CapeImageTk)
+                self.Current_Cape.bind('<Configure>', self.no_slicecape)
+            except:
+                print('This file is not an image/minecraft-cape')
         
     def no_sliceskin(self, event):
         global skinresized_tk
