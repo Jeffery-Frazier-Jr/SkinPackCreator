@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import Canvas, filedialog
+from tkinter import Canvas, filedialog, ttk
 from PIL import Image, ImageTk
 import os
 
@@ -7,13 +7,20 @@ class Layout(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
+        # layout
         self.settings_control = ctk.CTkFrame(parent)
         self.folder_output = ctk.CTkFrame(parent)
 
+        # data/variable
+        self.entries = []
+        self.localization_name = ctk.StringVar(value = '')
+        
+        # initializers
         self.FileSelect()
         self.ExportControls()
         self.FileOutput()
 
+        # placement
         self.settings_control.place(relx = 0, rely = 0, relwidth = .4, relheight = 1)
         self.folder_output.place(relx = .4, rely = 0, relwidth = .6, relheight = 1)
 
@@ -26,10 +33,10 @@ class Layout(ctk.CTkFrame):
 
         # widgets
         self.Pack_exportLabel = ctk.CTkLabel(FileSelectFrame, text = 'Pack Export\nName')
-        self.Pack_exportEntry = ctk.CTkEntry(FileSelectFrame)
+        self.Pack_exportEntry = ctk.CTkEntry(FileSelectFrame, placeholder_text = 'Enter Skinpack Name')
         self.LocalizationLabel = ctk.CTkLabel(FileSelectFrame, text = 'Skin Name')
         self.Localization_ent = ctk.CTkEntry(FileSelectFrame)
-        self.Default_all_btn = ctk.CTkButton(FileSelectFrame, text = 'DEF all')
+        self.DeleteLast_btn = ctk.CTkButton(FileSelectFrame, text = 'Del Previous', command = self.listview)
         self.Skin_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Skin')
         self.Skin_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.skinupdateview() if self.Skin_select_menu.get() != 'Select File' else print('Please select a folder with your skin file(s)'))
         self.Cape_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Cape')
@@ -40,7 +47,7 @@ class Layout(ctk.CTkFrame):
         self.Pack_exportEntry.grid(row = 0, column = 0, sticky = 'ew')
         self.LocalizationLabel.grid(row = 1, column = 0, sticky = 's')
         self.Localization_ent.grid(row = 2, column = 0, sticky = 'ew')
-        self.Default_all_btn.grid(row = 4, column = 0)
+        self.DeleteLast_btn.grid(row = 4, column = 0)
         self.Skin_SelectLabel.grid(row = 1, column = 1, sticky = 's')
         self.Skin_select_menu.grid(row = 2, column = 1, sticky = 'n')
         self.Cape_SelectLabel.grid(row = 3, column = 1, sticky = 's')
@@ -55,8 +62,8 @@ class Layout(ctk.CTkFrame):
 
         # widgets
         OutputLabel = ctk.CTkLabel(ExportControlsFrame, text = 'Output Label')
-        AddButton = ctk.CTkButton(ExportControlsFrame, text = 'Add', fg_color = '#10b409', hover_color = '#077d02')
-        ExportButton = ctk.CTkButton(ExportControlsFrame, text = 'Export', fg_color = '#c61d1d', hover_color = '#830d0d')
+        AddButton = ctk.CTkButton(ExportControlsFrame, text = 'Add', fg_color = '#10b409', hover_color = '#077d02', command = self.addskin)
+        ExportButton = ctk.CTkButton(ExportControlsFrame, text = 'Export', fg_color = '#c61d1d', hover_color = '#830d0d', command = self.listview)
         Export_PATHEntry = ctk.CTkEntry(ExportControlsFrame)
         ExportPATH_SelectButton = ctk.CTkButton(ExportControlsFrame, text = 'Select EXP Path')
 
@@ -174,3 +181,48 @@ class Layout(ctk.CTkFrame):
         resized_image = self.CapeImage.resize((self.capewidth, self.capeheight))
         caperesized_tk = ImageTk.PhotoImage(resized_image)
         self.Current_Cape.create_image(int(event.width / 2), int(event.height / 2), anchor = 'center', image = caperesized_tk)
+    
+    def addskin(self):
+        if self.Skin_select_menu.get() == 'Select File' and self.Cape_select_menu.get() == 'Select File':
+            print('This program is not magic, please select your folders and choose your cape and/or skin') 
+        elif self.Skin_select_menu.get() == 'Select File':
+            print('Please select a skin file from a folder')
+        elif self.Cape_select_menu.get() == 'Select File':
+            print('Please select "None" or a cape file from a folder')
+        else: 
+            self.entries.append({
+                'Name': self.Localization_ent.get() if self.Localization_ent.get() != '' else self.SkinRecord[self.Skins.index(self.Skin_select_menu.get())].split('.')[0] + ('None' if self.Cape_select_menu.get() == 'None' else self.CapeRecord[self.Capes.index(self.Cape_select_menu.get()) - 1].split('.')[0]),
+                'Skin': self.SkinPATH + '/' + self.SkinRecord[self.Skins.index(self.Skin_select_menu.get())], 
+                'Cape': (self.CapePATH + '/' + self.CapeRecord[self.Capes.index(self.Cape_select_menu.get()) - 1]) if self.Cape_select_menu.get() != 'None' else 'None'})
+    
+    def deleteprev(self):
+        if self.entries:
+            del self.entries[-1]
+        else:
+            print('You have added no entries into the skinpack')
+    
+    def listview(self):
+        self.viewthing = ctk.CTk()
+        self.viewthing.title('Windowthing')
+        self.viewthing.resizable(False, False)
+        self.viewthing.geometry('750x500')
+        self.entrylist = ttk.Treeview(self.viewthing, columns = ('Skin-Name', 'Skin-img', 'Cape-img'), show = 'headings')
+        self.entrylist.heading('Skin-Name', text = 'Skin-Name')
+        self.entrylist.heading('Skin-img', text = 'Skin-img')
+        self.entrylist.heading('Cape-img', text = 'Cape-img')
+        self.entrylist.pack(fill = 'both', expand = True)
+
+        for x in self.entries:
+            self.entrylist.insert(parent = '', index = ctk.END, values = (x['Name'], x['Skin'], x['Cape']))
+
+        self.closeandsave = ctk.CTkLabel(self.viewthing, text = "Press ESC to exit and save changes (only works if you're focused on this window)")
+        self.closeandsave.pack()
+
+        self.viewthing.bind_all('<Escape>', lambda event: self.contents())
+
+        self.viewthing.mainloop()
+    
+    def contents(self):
+        for x in self.entrylist.get_children():
+            print(self.entrylist.item(x)['values'])
+        self.viewthing.destroy()
