@@ -35,7 +35,7 @@ class Layout(ctk.CTkFrame):
         self.Pack_exportLabel = ctk.CTkLabel(FileSelectFrame, text = 'Pack Export\nName')
         self.Pack_exportEntry = ctk.CTkEntry(FileSelectFrame, placeholder_text = 'Enter Skinpack Name')
         self.LocalizationLabel = ctk.CTkLabel(FileSelectFrame, text = 'Skin Name')
-        self.Localization_ent = ctk.CTkEntry(FileSelectFrame)
+        self.Localization_ent = ctk.CTkEntry(FileSelectFrame, textvariable = self.localization_name)
         self.DeleteLast_btn = ctk.CTkButton(FileSelectFrame, text = 'Del Previous', command = self.listview)
         self.Skin_SelectLabel = ctk.CTkLabel(FileSelectFrame, text = 'Select Skin')
         self.Skin_select_menu = ctk.CTkOptionMenu(FileSelectFrame, values = ['Select File'], command = lambda event: self.skinupdateview() if self.Skin_select_menu.get() != 'Select File' else print('Please select a folder with your skin file(s)'))
@@ -63,7 +63,7 @@ class Layout(ctk.CTkFrame):
         # widgets
         OutputLabel = ctk.CTkLabel(ExportControlsFrame, text = 'Output Label')
         AddButton = ctk.CTkButton(ExportControlsFrame, text = 'Add', fg_color = '#10b409', hover_color = '#077d02', command = self.addskin)
-        ExportButton = ctk.CTkButton(ExportControlsFrame, text = 'Export', fg_color = '#c61d1d', hover_color = '#830d0d', command = self.listview)
+        ExportButton = ctk.CTkButton(ExportControlsFrame, text = 'Export', fg_color = '#c61d1d', hover_color = '#830d0d', command = lambda: print(self.entries))
         Export_PATHEntry = ctk.CTkEntry(ExportControlsFrame)
         ExportPATH_SelectButton = ctk.CTkButton(ExportControlsFrame, text = 'Select EXP Path')
 
@@ -194,6 +194,7 @@ class Layout(ctk.CTkFrame):
                 'Name': self.Localization_ent.get() if self.Localization_ent.get() != '' else self.SkinRecord[self.Skins.index(self.Skin_select_menu.get())].split('.')[0] + ('None' if self.Cape_select_menu.get() == 'None' else self.CapeRecord[self.Capes.index(self.Cape_select_menu.get()) - 1].split('.')[0]),
                 'Skin': self.SkinPATH + '/' + self.SkinRecord[self.Skins.index(self.Skin_select_menu.get())], 
                 'Cape': (self.CapePATH + '/' + self.CapeRecord[self.Capes.index(self.Cape_select_menu.get()) - 1]) if self.Cape_select_menu.get() != 'None' else 'None'})
+            self.localization_name.set('')
     
     def deleteprev(self):
         if self.entries:
@@ -206,23 +207,27 @@ class Layout(ctk.CTkFrame):
         self.viewthing.title('Windowthing')
         self.viewthing.resizable(False, False)
         self.viewthing.geometry('750x500')
-        self.entrylist = ttk.Treeview(self.viewthing, columns = ('Skin-Name', 'Skin-img', 'Cape-img'), show = 'headings')
-        self.entrylist.heading('Skin-Name', text = 'Skin-Name')
-        self.entrylist.heading('Skin-img', text = 'Skin-img')
-        self.entrylist.heading('Cape-img', text = 'Cape-img')
-        self.entrylist.pack(fill = 'both', expand = True)
+        self.treeview = ttk.Treeview(self.viewthing, columns = ('Skin-Name', 'Skin-img', 'Cape-img'), show = 'headings')
+        self.treeview.heading('Skin-Name', text = 'Skin-Name')
+        self.treeview.heading('Skin-img', text = 'Skin-img')
+        self.treeview.heading('Cape-img', text = 'Cape-img')
+        self.treeview.pack(fill = 'both', expand = True)
 
         for x in self.entries:
-            self.entrylist.insert(parent = '', index = ctk.END, values = (x['Name'], x['Skin'], x['Cape']))
+            self.treeview.insert(parent = '', index = ctk.END, values = (x['Name'], x['Skin'], x['Cape']))
 
         self.closeandsave = ctk.CTkLabel(self.viewthing, text = "Press ESC to exit and save changes (only works if you're focused on this window)")
         self.closeandsave.pack()
 
-        self.viewthing.bind_all('<Escape>', lambda event: self.contents())
+        self.viewthing.bind_all('<Escape>', lambda event: self.grabcontents())
+        self.treeview.bind('<Delete>', self.delete)
 
         self.viewthing.mainloop()
     
-    def contents(self):
-        for x in self.entrylist.get_children():
-            print(self.entrylist.item(x)['values'])
+    def grabcontents(self):
+        self.entries = [{'Name': self.treeview.item(x)['values'][0], 'Skin': self.treeview.item(x)['values'][1], 'Cape': self.treeview.item(x)['values'][2]} for x in self.treeview.get_children()]
         self.viewthing.destroy()
+    
+    def delete(self, event):
+        for item in self.treeview.selection():
+            self.treeview.delete(item)
