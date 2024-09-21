@@ -2,6 +2,8 @@ import customtkinter as ctk
 from tkinter import Canvas, filedialog, ttk
 from PIL import Image, ImageTk
 import os
+import shutil
+import uuid
 
 class Layout(ctk.CTkFrame):
     def __init__(self, parent):
@@ -14,6 +16,7 @@ class Layout(ctk.CTkFrame):
         # data/variable
         self.entries = []
         self.localization_name = ctk.StringVar(value = '')
+        self.exportPATH = ctk.StringVar(value = os.getcwd().replace('\\', '/'))
         
         # initializers
         self.FileSelect()
@@ -63,9 +66,9 @@ class Layout(ctk.CTkFrame):
         # widgets
         OutputLabel = ctk.CTkLabel(ExportControlsFrame, text = 'Output Label')
         AddButton = ctk.CTkButton(ExportControlsFrame, text = 'Add', fg_color = '#10b409', hover_color = '#077d02', command = self.addskin)
-        ExportButton = ctk.CTkButton(ExportControlsFrame, text = 'Export', fg_color = '#c61d1d', hover_color = '#830d0d', command = lambda: print(self.entries))
-        Export_PATHEntry = ctk.CTkEntry(ExportControlsFrame)
-        ExportPATH_SelectButton = ctk.CTkButton(ExportControlsFrame, text = 'Select EXP Path')
+        ExportButton = ctk.CTkButton(ExportControlsFrame, text = 'Export', fg_color = '#c61d1d', hover_color = '#830d0d', command = self.Export)
+        Export_PATHEntry = ctk.CTkEntry(ExportControlsFrame, textvariable = self.exportPATH)
+        ExportPATH_SelectButton = ctk.CTkButton(ExportControlsFrame, text = 'Select EXP Path', command = lambda: self.exportPATH.set(filedialog.askdirectory()))
 
         # placement
         OutputLabel.grid(row = 0, column = 0, columnspan = 2)
@@ -231,3 +234,24 @@ class Layout(ctk.CTkFrame):
     def delete(self, event):
         for item in self.treeview.selection():
             self.treeview.delete(item)
+    
+    def Export(self):
+        if self.Pack_exportEntry.get():
+            if self.entries:
+                os.mkdir(f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile')
+                with open(f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile/skins.json', 'w') as fp:
+                    fp.write('{"skins": [' + ', '.join('{"localization_name": ' + f'"{x["Name"]}", "geometry": "geometry.humanoid.customSlim", "texture": "{x["Skin"].split("/")[-1]}", ' + (f'"cape": "{x["Cape"].split("/")[-1]}", ' if x["Cape"] != 'None' else '') + '"type": "free"}' for x in self.entries) + f'], "serialize_name": "{self.Pack_exportEntry.get()}", "localization_name": "{self.Pack_exportEntry.get()}"' + '}')
+                os.mkdir(f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile\\texts')
+                with open(f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile\\texts\\en_US.lang', 'w') as fp:
+                    fp.write(f'skinpack.{self.Pack_exportEntry.get()}={self.Pack_exportEntry.get()}\n' + '\n'.join(f'skin.{self.Pack_exportEntry.get()}.{x['Name']}={x['Name']}' for x in self.entries))
+                with open(f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile\\manifest.json', 'w') as fp:
+                    fp.write('{\n  "header": {\n    "version": [\n      1,\n      0,\n      0\n    ],\n    "description": '+f'"{self.Pack_exportEntry.get()}",\n    "name": "{self.Pack_exportEntry.get()}",\n    "uuid": "{uuid.uuid4()}"'+'\n  },\n  "modules": [\n    {\n      "version": [\n        1,\n        0,\n        0\n      ],\n      "type": "skin_pack",\n      "uuid": '+f'"{uuid.uuid4()}"'+'\n    }\n  ],\n  "format_version": 1\n}')
+                for x in set([x['Skin'] for x in self.entries]):
+                    shutil.copy(x, f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile')
+                for x in set([x['Cape'] for x in self.entries if x['Cape'] != 'None']):
+                    shutil.copy(x, f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile')
+                shutil.copy(f'{os.getcwd()}\\geometry.json', f'{self.exportPATH.get().replace('/', '\\')}\\{self.Pack_exportEntry.get()}_SkinpackFile')
+            else:
+                print('No added skins')
+        else:
+            print('Needs a pack name')
