@@ -59,7 +59,7 @@ suggest GIMP as it is a free image editor and
 with a little bit of researching you can
 export your files in an 8 bit depth.
 
-Once yo've selected your files, you can click
+Once you've selected your files, you can click
 the green add button to add it to your listings
 and you can use the delete skins button to
 remove listings you didn't mean to add in.
