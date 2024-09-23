@@ -21,11 +21,73 @@ There is no selection for any other geometry but
 feel free to take the code and make it!
 
 -------------------------------------------------
+So, here are the very basics on how to use the
+program, first you need to have a few libraries
+installed before you launch the app. 
+
+Those libraries are customtkinter, tkinter, 
+PIL, os, shutil, and uuid. 
+
+After you have those, you can then launch the 
+app and will be greeted with the UI. 
+
+The first steps in creating your skinpack 
+inside the application is by typing a name for 
+your skinpack and selecting the folders that 
+contain your skins and the file that contains 
+your capes. 
+
+There are dropdown menus for both your skins and 
+capes near the left.
+
+It's possible to name your skins that will go
+into the skinpack otherwise it will take the
+name of the files themselves and combine them.
+
+As a disclaimer, your files may appear blurry in
+the display and if that's the case it's because
+of the bit depth in your file.
+
+If the file the program is trying to display has
+a bit depth higher than 8, it will appear blurry
+and the way you can fix it if it really bugs you
+is by exporting your file to be at a bit depth
+of 8.
+
+If you dont have an application to do that I
+suggest GIMP as it is a free image editor and
+with a little bit of researching you can
+export your files in an 8 bit depth.
+
+Once yo've selected your files, you can click
+the green add button to add it to your listings
+and you can use the delete skins button to
+remove listings you didn't mean to add in.
+
+After you're happy with everything you've added
+you can select the directory you want to export
+to, or keep it at the default export point and
+export your skinpack.
+
+If you're using it as a 4d skinpack and you're
+pushing it into your persona you dont have to
+make it a zip file; however, if you're
+expecting it to work like a normal skinpack,
+you can compress the file and make it an
+mcpack to import to minecraft.
+
+As a disclaimer, capes only work in the persona
+file and I cannot promise you that the program
+can push the skinpack to that file due to the
+file permissions the persona filepath has.
+
+-------------------------------------------------
 !!!!!!!BEFORE YOU USE THE SKINPACK CREATOR!!!!!!!
 
 This program does not mess with your image files 
 and only copies them to another file after saving 
 your skinpack.
+
 Notice that whenever you open the deletion menu
 that you can select entries that you made.
 
